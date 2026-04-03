@@ -1,0 +1,38 @@
+{
+  "name": "horizonte-erp-mvp",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.8.1",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:web": "pnpm --filter @erp/web dev",
+    "dev:api": "pnpm --filter @erp/api dev",
+    "dev:worker": "pnpm --filter @erp/worker dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "db:generate": "pnpm --filter @erp/db prisma:generate",
+    "db:validate": "pnpm --filter @erp/db prisma:validate",
+    "db:seed:base": "pnpm --filter @erp/db seed:base",
+    "db:seed:demo": "pnpm --filter @erp/db seed:demo"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.24.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "tsx": "^4.19.4",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.1",
+    "vitest": "^3.1.1"
+  }
+}

@@ -1,0 +1,820 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum company_plan {
+  trial
+  starter
+  pro
+}
+
+enum company_status {
+  active
+  suspended
+  archived
+}
+
+enum company_fiscal_regime {
+  simples_nacional
+  lucro_presumido
+  lucro_real
+}
+
+enum company_membership_role {
+  administrador
+  financeiro
+  comercial
+  contador
+  visualizador
+}
+
+enum company_membership_status {
+  invited
+  active
+  suspended
+  removed
+}
+
+enum user_status {
+  active
+  disabled
+  invited
+}
+
+enum verification_purpose {
+  email_verification
+  password_reset
+  magic_link
+  two_factor_enrollment
+}
+
+enum module_key {
+  financeiro
+  documentos
+  crm
+  bi
+  configuracoes
+  aria
+}
+
+enum contact_kind {
+  customer
+  supplier
+  both
+}
+
+enum category_kind {
+  revenue
+  expense
+  neutral
+}
+
+enum entry_type {
+  pagar
+  receber
+}
+
+enum entry_status {
+  pendente
+  vencido
+  pago
+  cancelado
+}
+
+enum bank_connection_provider {
+  pluggy
+  belvo
+  manual
+}
+
+enum bank_connection_status {
+  pending
+  active
+  revoked
+  error
+}
+
+enum bank_account_type {
+  checking
+  savings
+  wallet
+  investment
+  payment
+}
+
+enum bank_transaction_direction {
+  debit
+  credit
+}
+
+enum bank_transaction_status {
+  imported
+  pending
+  reconciled
+  ignored
+}
+
+enum reconciliation_match_status {
+  suggested
+  confirmed
+  rejected
+}
+
+enum document_type {
+  nfe
+  boleto
+  contrato
+  pedido
+}
+
+enum document_status {
+  pendente
+  processando
+  validado
+  lancado
+  erro
+}
+
+enum document_source {
+  upload
+  email
+  integration
+  manual
+}
+
+enum document_validation_status {
+  pending
+  approved
+  flagged
+  error
+}
+
+enum conversation_role {
+  user
+  assistant
+  system
+  tool
+}
+
+enum alert_type {
+  caixa_critico
+  nfe_parada
+  fiscal_urgente
+  divergencia_nfe
+  layout_sefaz
+  custom
+}
+
+enum alert_severity {
+  info
+  warning
+  critical
+}
+
+enum alert_channel {
+  push
+  email
+  whatsapp
+}
+
+enum alert_status {
+  active
+  snoozed
+  resolved
+  dismissed
+}
+
+enum audit_origin {
+  web
+  api
+  worker
+  aria
+  system
+}
+
+enum audit_result_status {
+  success
+  error
+  cancelled
+}
+
+enum certificate_type {
+  a1
+  a3
+}
+
+enum tax_environment {
+  homologation
+  production
+}
+
+model Plan {
+  id                  String        @id @default(uuid()) @db.Uuid
+  code                company_plan  @unique
+  name                String
+  description         String?
+  trial_days          Int           @default(0)
+  monthly_price_cents Int           @default(0)
+  active              Boolean       @default(true)
+  created_at          DateTime      @default(now())
+  updated_at          DateTime      @updatedAt
+
+  companies           Company[]
+
+  @@map("plans")
+}
+
+model User {
+  id                        String               @id @default(uuid()) @db.Uuid
+  name                      String?
+  email                     String               @unique
+  email_verified_at         DateTime?
+  password_hash             String?
+  image_url                 String?
+  timezone                  String               @default("America/Sao_Paulo")
+  language                  String               @default("pt-BR")
+  two_factor_enabled        Boolean              @default(false)
+  two_factor_secret_encrypted String?
+  status                    user_status          @default(active)
+  last_login_at             DateTime?
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
+
+  sessions                  Session[]
+  company_memberships       CompanyMembership[]
+  audit_entries             AuditEntry[]
+  conversations             Conversation[]
+  conversation_messages     ConversationMessage[]
+  alerts                    Alert[]              @relation("user_alerts")
+  idempotency_keys          IdempotencyKey[]
+  verification_tokens       VerificationToken[]  @relation("verification_tokens_created_by")
+  lancamentos               Lancamento[]
+  attachments               Attachment[]
+  reconciliation_matches    ReconciliationMatch[]
+  documents_uploaded        Document[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  id                  String               @id @default(uuid()) @db.Uuid
+  identifier          String
+  token               String
+  purpose             verification_purpose
+  expires_at          DateTime
+  consumed_at         DateTime?
+  created_by_user_id  String?              @db.Uuid
+  created_at          DateTime             @default(now())
+  updated_at          DateTime             @updatedAt
+
+  created_by_user     User?                @relation("verification_tokens_created_by", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  @@unique([identifier, token])
+  @@index([identifier])
+  @@map("verification_tokens")
+}
+
+model Session {
+  id             String   @id @default(uuid()) @db.Uuid
+  session_token  String   @unique
+  user_id        String   @db.Uuid
+  expires_at     DateTime
+  ip_address     String?
+  user_agent     String?
+  last_used_at   DateTime?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  user           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("sessions")
+}
+
+model Company {
+  id             String               @id @default(uuid()) @db.Uuid
+  cnpj           String               @unique
+  razao_social   String
+  nome_fantasia  String
+  plan_id        String               @db.Uuid
+  fiscal_regime  company_fiscal_regime
+  timezone       String               @default("America/Sao_Paulo")
+  language       String               @default("pt-BR")
+  status         company_status       @default(active)
+  cnae_codes     String[]
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
+
+  plan                 Plan                    @relation(fields: [plan_id], references: [id], onDelete: Restrict)
+  profile              CompanyProfile?
+  fiscal_settings      CompanyFiscalSetting?
+  memberships          CompanyMembership[]
+  module_flags         ModuleFlag[]
+  contacts             Contact[]
+  categories           Category[]
+  cost_centers         CostCenter[]
+  bank_connections     BankConnection[]
+  bank_accounts        BankAccount[]
+  bank_transactions    BankTransaction[]
+  lancamentos          Lancamento[]
+  attachments          Attachment[]
+  cashflow_snapshots   CashflowSnapshot[]
+  reconciliation_matches ReconciliationMatch[]
+  documents            Document[]
+  document_extractions  DocumentExtraction[]
+  document_validations  DocumentValidation[]
+  conversations        Conversation[]
+  conversation_messages ConversationMessage[]
+  alerts               Alert[]
+  audit_entries        AuditEntry[]
+  idempotency_keys     IdempotencyKey[]
+
+  @@map("companies")
+}
+
+model CompanyMembership {
+  id              String                     @id @default(uuid()) @db.Uuid
+  company_id      String                     @db.Uuid
+  user_id         String                     @db.Uuid
+  role            company_membership_role
+  status          company_membership_status  @default(invited)
+  invited_at      DateTime?
+  accepted_at     DateTime?
+  created_at      DateTime                   @default(now())
+  updated_at      DateTime                   @updatedAt
+
+  company         Company                    @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user            User                       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([company_id, user_id])
+  @@index([user_id])
+  @@map("company_memberships")
+}
+
+model CompanyProfile {
+  id                  String   @id @default(uuid()) @db.Uuid
+  company_id          String   @unique @db.Uuid
+  segment             String?
+  employee_count      Int?
+  monthly_invoice_cents Int?
+  billing_email       String?
+  phone               String?
+  address             Json?
+  notes               String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  company             Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@map("company_profiles")
+}
+
+model CompanyFiscalSetting {
+  id                     String             @id @default(uuid()) @db.Uuid
+  company_id             String             @unique @db.Uuid
+  fiscal_regime          company_fiscal_regime
+  cnae_codes             String[]
+  certificate_type       certificate_type?
+  certificate_alias      String?
+  certificate_valid_until DateTime?
+  tax_environment        tax_environment    @default(homologation)
+  open_finance_enabled   Boolean            @default(false)
+  sefaz_enabled          Boolean            @default(false)
+  ibs_rate               Decimal?           @db.Decimal(5, 2)
+  cbs_rate               Decimal?           @db.Decimal(5, 2)
+  created_at             DateTime           @default(now())
+  updated_at             DateTime           @updatedAt
+
+  company                Company            @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@map("company_fiscal_settings")
+}
+
+model ModuleFlag {
+  id            String      @id @default(uuid()) @db.Uuid
+  company_id    String      @db.Uuid
+  key           module_key
+  enabled       Boolean     @default(false)
+  config        Json?
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+
+  company       Company     @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@unique([company_id, key])
+  @@map("module_flags")
+}
+
+model Contact {
+  id                 String          @id @default(uuid()) @db.Uuid
+  company_id         String          @db.Uuid
+  kind               contact_kind
+  document_number    String
+  legal_name         String
+  trade_name         String?
+  email              String?
+  phone              String?
+  inadimplencia_score Decimal?       @db.Decimal(5, 2)
+  notes              String?
+  metadata           Json?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+
+  company            Company         @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  lancamentos        Lancamento[]
+
+  @@unique([company_id, document_number])
+  @@index([company_id, kind])
+  @@map("contacts")
+}
+
+model Category {
+  id          String        @id @default(uuid()) @db.Uuid
+  company_id  String        @db.Uuid
+  kind        category_kind
+  name        String
+  active      Boolean       @default(true)
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+
+  company     Company       @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  lancamentos Lancamento[]
+
+  @@unique([company_id, kind, name])
+  @@map("categories")
+}
+
+model CostCenter {
+  id          String    @id @default(uuid()) @db.Uuid
+  company_id  String    @db.Uuid
+  code        String
+  name        String
+  active      Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  company     Company   @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  lancamentos Lancamento[]
+
+  @@unique([company_id, code])
+  @@map("cost_centers")
+}
+
+model BankConnection {
+  id                        String                   @id @default(uuid()) @db.Uuid
+  company_id                String                   @db.Uuid
+  provider                  bank_connection_provider
+  status                    bank_connection_status   @default(pending)
+  external_connection_id    String?
+  consent_id               String?
+  institution_name         String?
+  access_token_encrypted   String?
+  refresh_token_encrypted  String?
+  expires_at               DateTime?
+  last_synced_at           DateTime?
+  metadata                 Json?
+  created_at               DateTime                 @default(now())
+  updated_at               DateTime                 @updatedAt
+
+  company                  Company                  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  bank_accounts            BankAccount[]
+
+  @@unique([company_id, provider, external_connection_id])
+  @@index([company_id, provider])
+  @@map("bank_connections")
+}
+
+model BankAccount {
+  id              String            @id @default(uuid()) @db.Uuid
+  company_id      String            @db.Uuid
+  bank_connection_id String?        @db.Uuid
+  name            String
+  institution_name String
+  branch_number   String?
+  account_number  String
+  account_digit   String?
+  account_type    bank_account_type
+  currency        String            @default("BRL")
+  current_balance_cents Int         @default(0)
+  is_primary      Boolean           @default(false)
+  metadata        Json?
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  company         Company           @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  bank_connection BankConnection?   @relation(fields: [bank_connection_id], references: [id], onDelete: SetNull)
+  bank_transactions BankTransaction[]
+
+  @@unique([company_id, institution_name, account_number])
+  @@index([company_id, is_primary])
+  @@map("bank_accounts")
+}
+
+model BankTransaction {
+  id               String                   @id @default(uuid()) @db.Uuid
+  company_id       String                   @db.Uuid
+  bank_account_id  String                   @db.Uuid
+  external_id      String
+  occurred_at      DateTime
+  posted_at        DateTime?
+  description      String
+  amount_cents     Int
+  direction        bank_transaction_direction
+  status           bank_transaction_status   @default(imported)
+  category_hint    String?
+  metadata         Json?
+  created_at       DateTime                 @default(now())
+  updated_at       DateTime                 @updatedAt
+
+  company          Company                  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  bank_account     BankAccount              @relation(fields: [bank_account_id], references: [id], onDelete: Cascade)
+  reconciliation_match ReconciliationMatch? @relation("bank_transaction_reconciliation_match")
+
+  @@unique([company_id, bank_account_id, external_id])
+  @@index([company_id, occurred_at])
+  @@map("bank_transactions")
+}
+
+model Lancamento {
+  id                 String          @id @default(uuid()) @db.Uuid
+  company_id         String          @db.Uuid
+  entry_type         entry_type
+  description        String
+  amount_cents       Int
+  due_date           DateTime
+  status             entry_status
+  paid_at            DateTime?
+  contact_id         String?         @db.Uuid
+  document_id        String?         @db.Uuid @unique
+  category_id        String?         @db.Uuid
+  cost_center_id     String?         @db.Uuid
+  created_by_user_id String?         @db.Uuid
+  source             String          @default("manual")
+  reference_number   String?
+  notes              String?
+  metadata           Json?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+
+  company            Company         @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  contact            Contact?        @relation(fields: [contact_id], references: [id], onDelete: SetNull)
+  document           Document?       @relation("document_posted_lancamento", fields: [document_id], references: [id], onDelete: SetNull)
+  category           Category?       @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  cost_center        CostCenter?     @relation(fields: [cost_center_id], references: [id], onDelete: SetNull)
+  created_by_user    User?           @relation(fields: [created_by_user_id], references: [id], onDelete: SetNull)
+  attachments        Attachment[]
+  reconciliation_matches ReconciliationMatch[]
+
+  @@index([company_id, due_date])
+  @@index([company_id, status])
+  @@map("lancamentos")
+}
+
+model Attachment {
+  id                 String   @id @default(uuid()) @db.Uuid
+  company_id         String   @db.Uuid
+  document_id        String?  @db.Uuid
+  lancamento_id      String?  @db.Uuid
+  kind               String   @default("generic")
+  file_name          String
+  mime_type          String
+  file_url           String
+  file_hash          String
+  created_by_user_id String?  @db.Uuid
+  metadata           Json?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  company            Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  document           Document? @relation(fields: [document_id], references: [id], onDelete: SetNull)
+  lancamento         Lancamento? @relation(fields: [lancamento_id], references: [id], onDelete: SetNull)
+  created_by_user    User?    @relation(fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  @@index([company_id, file_hash])
+  @@map("attachments")
+}
+
+model CashflowSnapshot {
+  id                     String   @id @default(uuid()) @db.Uuid
+  company_id             String   @db.Uuid
+  snapshot_date          DateTime
+  horizon_days           Int
+  realized_balance_cents  Int
+  projected_balance_cents Int
+  details                Json?
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+
+  company                Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@unique([company_id, snapshot_date, horizon_days])
+  @@index([company_id, snapshot_date])
+  @@map("cashflow_snapshots")
+}
+
+model ReconciliationMatch {
+  id                 String                 @id @default(uuid()) @db.Uuid
+  company_id         String                 @db.Uuid
+  bank_transaction_id String                 @unique @db.Uuid
+  lancamento_id      String                 @db.Uuid
+  status             reconciliation_match_status @default(suggested)
+  confidence         Decimal?               @db.Decimal(5, 2)
+  matched_by_user_id String?                @db.Uuid
+  matched_at         DateTime?
+  notes              String?
+  metadata           Json?
+  created_at         DateTime               @default(now())
+  updated_at         DateTime               @updatedAt
+
+  company            Company                @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  bank_transaction   BankTransaction        @relation("bank_transaction_reconciliation_match", fields: [bank_transaction_id], references: [id], onDelete: Cascade)
+  lancamento         Lancamento             @relation(fields: [lancamento_id], references: [id], onDelete: Cascade)
+  matched_by_user    User?                  @relation(fields: [matched_by_user_id], references: [id], onDelete: SetNull)
+
+  @@index([company_id, status])
+  @@map("reconciliation_matches")
+}
+
+model Document {
+  id                   String          @id @default(uuid()) @db.Uuid
+  company_id           String          @db.Uuid
+  document_type        document_type
+  status               document_status
+  source               document_source
+  file_url             String
+  file_name            String
+  mime_type            String
+  original_hash        String
+  extracted_data       Json?
+  validation_summary   Json?
+  uploaded_by_user_id  String?         @db.Uuid
+  processed_at         DateTime?
+  error_messages       Json?
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+
+  company              Company         @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  posted_lancamento    Lancamento?     @relation("document_posted_lancamento")
+  uploaded_by_user     User?           @relation(fields: [uploaded_by_user_id], references: [id], onDelete: SetNull)
+  attachments          Attachment[]
+  document_extractions  DocumentExtraction[]
+  document_validations  DocumentValidation[]
+
+  @@unique([company_id, original_hash])
+  @@index([company_id, status])
+  @@map("documents")
+}
+
+model DocumentExtraction {
+  id               String   @id @default(uuid()) @db.Uuid
+  company_id       String   @db.Uuid
+  document_id      String   @db.Uuid
+  extraction_model String
+  raw_text         String?
+  structured_data  Json?
+  confidence       Decimal? @db.Decimal(5, 2)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  company          Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  document         Document @relation(fields: [document_id], references: [id], onDelete: Cascade)
+
+  @@index([company_id, document_id])
+  @@map("document_extractions")
+}
+
+model DocumentValidation {
+  id              String                     @id @default(uuid()) @db.Uuid
+  company_id      String                     @db.Uuid
+  document_id     String                     @db.Uuid
+  validation_type String
+  status          document_validation_status
+  message         String?
+  metadata        Json?
+  created_at      DateTime                   @default(now())
+  updated_at      DateTime                   @updatedAt
+
+  company         Company                    @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  document        Document                   @relation(fields: [document_id], references: [id], onDelete: Cascade)
+
+  @@index([company_id, document_id])
+  @@map("document_validations")
+}
+
+model Conversation {
+  id               String   @id @default(uuid()) @db.Uuid
+  company_id       String   @db.Uuid
+  user_id          String   @db.Uuid
+  context_screen   String?
+  memory_enabled   Boolean  @default(false)
+  title            String?
+  last_message_at  DateTime?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  company          Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  messages         ConversationMessage[]
+  audit_entries    AuditEntry[]
+
+  @@index([company_id, user_id])
+  @@map("conversations")
+}
+
+model ConversationMessage {
+  id                 String            @id @default(uuid()) @db.Uuid
+  company_id         String            @db.Uuid
+  conversation_id    String            @db.Uuid
+  role               conversation_role
+  content            Json
+  tool_call_id       String?
+  created_by_user_id String?           @db.Uuid
+  metadata           Json?
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
+
+  company            Company           @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  conversation       Conversation      @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  created_by_user    User?             @relation(fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  @@index([company_id, conversation_id, created_at])
+  @@map("conversation_messages")
+}
+
+model Alert {
+  id              String        @id @default(uuid()) @db.Uuid
+  company_id      String        @db.Uuid
+  user_id         String?       @db.Uuid
+  type            alert_type
+  severity        alert_severity
+  channel         alert_channel
+  status          alert_status
+  title           String
+  message         String
+  threshold       Json?
+  metadata        Json?
+  triggered_at    DateTime?
+  resolved_at     DateTime?
+  snoozed_until   DateTime?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  company         Company       @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user            User?         @relation("user_alerts", fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([company_id, status])
+  @@map("alerts")
+}
+
+model AuditEntry {
+  id              String             @id @default(uuid()) @db.Uuid
+  company_id      String             @db.Uuid
+  user_id         String?            @db.Uuid
+  request_id      String
+  conversation_id String?            @db.Uuid
+  origin          audit_origin
+  action          String
+  entity          String
+  entity_id       String?
+  tool            String?
+  params_hash     String
+  result_status   audit_result_status
+  latency_ms      Int?
+  metadata        Json?
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
+
+  company         Company            @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user            User?              @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  conversation    Conversation?      @relation(fields: [conversation_id], references: [id], onDelete: SetNull)
+
+  @@index([company_id, created_at])
+  @@index([company_id, request_id])
+  @@map("audit_entries")
+}
+
+model IdempotencyKey {
+  id                   String   @id @default(uuid()) @db.Uuid
+  company_id           String   @db.Uuid
+  user_id              String?  @db.Uuid
+  key                  String
+  route                String
+  payload_hash         String
+  response_status_code  Int?
+  response_body        Json?
+  expires_at           DateTime
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  company              Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user                 User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@unique([company_id, key])
+  @@index([company_id, expires_at])
+  @@map("idempotency_keys")
+}

@@ -1,0 +1,38 @@
+export const brandTokens = {
+  brand: {
+    name: "Horizonte ERP",
+    tagline: "A arquitetura inteligente para a sua operação financeira.",
+  },
+  colors: {
+    background: "#f8f9ff",
+    surface: "#ffffff",
+    surfaceLow: "#eff4ff",
+    surfaceHigh: "#dce9ff",
+    surfaceHighest: "#cbdcf7",
+    primary: "#131b2e",
+    primaryForeground: "#ffffff",
+    secondary: "#006c49",
+    secondaryForeground: "#ffffff",
+    secondarySoft: "#6cf8bb",
+    ariaStart: "#4f46e5",
+    ariaEnd: "#7c3aed",
+    text: "#0b1c30",
+    muted: "#5c6475",
+    outline: "#c6c6cd",
+    success: "#15803d",
+    warning: "#b45309",
+    danger: "#ba1a1a",
+    info: "#2563eb",
+  },
+  radius: {
+    sm: "0.375rem",
+    md: "0.75rem",
+    lg: "1rem",
+    xl: "1.5rem",
+    full: "9999px",
+  },
+  shadows: {
+    soft: "0 20px 60px rgba(11, 28, 48, 0.08)",
+    glow: "0 0 0 1px rgba(124, 58, 237, 0.12), 0 20px 50px rgba(79, 70, 229, 0.12)",
+  },
+} as const;

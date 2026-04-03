@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8f9ff;
+  --surface: #ffffff;
+  --surface-low: #eff4ff;
+  --surface-high: #dce9ff;
+  --surface-highest: #cfdff7;
+  --primary: #131b2e;
+  --primary-foreground: #ffffff;
+  --secondary: #006c49;
+  --secondary-foreground: #ffffff;
+  --secondary-soft: #6cf8bb;
+  --aria-start: #4f46e5;
+  --aria-end: #7c3aed;
+  --aria: #6d28d9;
+  --text: #0b1c30;
+  --muted: #5c6475;
+  --outline: #c6c6cd;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #ba1a1a;
+  --info: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(0, 108, 73, 0.1), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(79, 70, 229, 0.08), transparent 24%),
+    var(--background);
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-inter), Inter, sans-serif;
+  background:
+    linear-gradient(180deg, rgba(248, 249, 255, 0.72), rgba(248, 249, 255, 0.96)),
+    radial-gradient(circle at top, rgba(0, 108, 73, 0.08), transparent 36%);
+}
+
+::selection {
+  background: rgba(0, 108, 73, 0.18);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px);
+}
+
+.aria-gradient {
+  background: linear-gradient(135deg, var(--aria-start), var(--aria-end));
+}
+
+.shadow-ledger {
+  box-shadow: 0 24px 60px rgba(11, 28, 48, 0.08);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.soft-grid {
+  background-image:
+    linear-gradient(to right, rgba(11, 28, 48, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(11, 28, 48, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}

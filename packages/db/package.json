@@ -1,0 +1,31 @@
+{
+  "name": "@erp/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src prisma --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:validate": "prisma validate --schema prisma/schema.prisma",
+    "seed:base": "tsx prisma/seed.ts --mode=base",
+    "seed:demo": "tsx prisma/seed.ts --mode=demo",
+    "seed": "tsx prisma/seed.ts --mode=all"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "prisma": "^6.16.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

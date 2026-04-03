@@ -1,0 +1,52 @@
+export const seed_ids = {
+  plans: {
+    trial: '11111111-1111-4111-8111-111111111111',
+    starter: '22222222-2222-4222-8222-222222222222',
+    pro: '33333333-3333-4333-8333-333333333333',
+  },
+  users: {
+    admin: '44444444-4444-4444-8444-444444444444',
+    finance: '55555555-5555-4555-8555-555555555555',
+    sales: '66666666-6666-4666-8666-666666666666',
+  },
+  company: '77777777-7777-4777-8777-777777777777',
+  profile: '88888888-8888-4888-8888-888888888888',
+  fiscal_settings: '99999999-9999-4999-8999-999999999999',
+  module_flags: {
+    financeiro: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+    documentos: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+    crm: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3',
+    bi: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4',
+    configuracoes: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa5',
+    aria: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6',
+  },
+  contacts: {
+    supplier: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1',
+    customer: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2',
+  },
+  categories: {
+    revenue: 'cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
+    expense: 'cccccccc-cccc-4ccc-8ccc-ccccccccccc2',
+    taxes: 'cccccccc-cccc-4ccc-8ccc-ccccccccccc3',
+  },
+  cost_centers: {
+    operations: 'dddddddd-dddd-4ddd-8ddd-ddddddddddd1',
+    commercial: 'dddddddd-dddd-4ddd-8ddd-ddddddddddd2',
+  },
+  bank_connection: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+  bank_account: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+  bank_transaction: '12121212-1212-4121-8121-121212121212',
+  lancamentos: {
+    pagar: '13131313-1313-4131-8131-131313131313',
+    receber: '14141414-1414-4141-8141-141414141414',
+  },
+  cashflow_snapshot: '15151515-1515-4151-8151-151515151515',
+  reconciliation_match: '16161616-1616-4161-8161-161616161616',
+  document: '17171717-1717-4171-8171-171717171717',
+  document_extraction: '18181818-1818-4181-8181-181818181818',
+  document_validation: '19191919-1919-4191-8191-191919191919',
+  conversation: '1a1a1a1a-1a1a-41a1-81a1-1a1a1a1a1a1a',
+  conversation_message_user: '1b1b1b1b-1b1b-41b1-81b1-1b1b1b1b1b1b',
+  conversation_message_assistant: '1c1c1c1c-1c1c-41c1-81c1-1c1c1c1c1c1c',
+  alert: '1d1d1d1d-1d1d-41d1-81d1-1d1d1d1d1d1d',
+} as const;

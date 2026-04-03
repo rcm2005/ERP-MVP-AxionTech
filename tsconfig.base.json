@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@erp/config": [
+        "packages/config/src/index.ts"
+      ],
+      "@erp/db": [
+        "packages/db/src/index.ts"
+      ],
+      "@erp/contracts": [
+        "packages/contracts/src/index.ts"
+      ],
+      "@erp/contracts/*": [
+        "packages/contracts/src/*"
+      ],
+      "@erp/auth": [
+        "packages/auth/src/index.ts"
+      ],
+      "@erp/logging": [
+        "packages/logging/src/index.ts"
+      ],
+      "@erp/ui": [
+        "packages/ui/src/index.ts"
+      ],
+      "@erp/ui/*": [
+        "packages/ui/src/*"
+      ],
+      "@erp/testkit": [
+        "packages/testkit/src/index.ts"
+      ],
+      "@erp/testkit/*": [
+        "packages/testkit/src/*"
+      ]
+    }
+  }
+}
