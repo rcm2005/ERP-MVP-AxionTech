@@ -99,7 +99,7 @@ export function AriaPanel() {
       <button
         aria-label="Abrir Aria"
         className={cn(
-          "fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-aria-gradient text-white shadow-[0_24px_50px_rgba(79,70,229,0.26)] transition-transform hover:scale-105 md:bottom-6 md:right-6",
+          "fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-xl bg-aria-gradient text-white shadow-[0_12px_32px_rgba(79,70,229,0.30)] transition-all hover:scale-105 hover:shadow-[0_16px_40px_rgba(79,70,229,0.38)]",
           open ? "scale-95 ring-2 ring-white/60" : "",
         )}
         onClick={() => setOpen((current) => !current)}
@@ -110,19 +110,19 @@ export function AriaPanel() {
 
       <div
         className={cn(
-          "fixed bottom-20 right-5 z-50 w-[min(92vw,400px)] overflow-hidden rounded-[1.5rem] border border-white/40 bg-surface/90 shadow-[0_30px_70px_rgba(11,28,48,0.16)] backdrop-blur-xl transition-all duration-300 md:bottom-24 md:right-6",
+          "fixed bottom-20 right-5 z-50 w-[380px] overflow-hidden rounded-xl border border-outline/15 bg-surface shadow-[0_20px_60px_rgba(11,28,48,0.18)] transition-all duration-200",
           open
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0",
         )}
       >
-        <div className="aria-gradient px-4 py-4 text-white">
+        <div className="aria-gradient px-4 py-3 text-white">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/75">
-                Aria
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/70">
+                Aria Copilot
               </p>
-              <h3 className="text-lg font-black">Copilot ativo</h3>
+              <h3 className="text-sm font-bold">Contexto ativo</h3>
             </div>
             <Badge className="bg-white/20 text-white" variant="neutral">
               {screen}

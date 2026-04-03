@@ -18,25 +18,24 @@ export function CashflowBoard() {
   }, [days]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-5">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
             Visão de tesouraria
           </p>
-          <h1 className="mt-1 text-4xl font-black tracking-tight text-text">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-text">
             Fluxo de Caixa
           </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-            Compare realizado e projetado, simule um atraso de pagamento e veja
-            a leitura da Aria sobre o maior risco próximo.
+          <p className="mt-1 text-sm text-muted">
+            Compare realizado e projetado, simule atraso de pagamento e veja a leitura da Aria.
           </p>
         </div>
-        <div className="flex rounded-full bg-surfaceHigh p-1.5">
+        <div className="flex rounded-lg bg-surfaceHigh p-1">
           {horizons.map((value) => (
             <button
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
-                value === days ? "bg-surface text-text shadow-sm" : "text-muted"
+              className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-all ${
+                value === days ? "bg-surface text-text shadow-sm" : "text-muted hover:text-text"
               }`}
               key={value}
               onClick={() => setDays(value)}
@@ -48,24 +47,24 @@ export function CashflowBoard() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-3 gap-4">
         <KpiCard label="Saldo projetado" value="R$ 218.420,00" delta="+12,4%" deltaTone="success" />
         <KpiCard label="Ponto de atenção" value="15 de junho" delta="folha e impostos" deltaTone="warning" />
         <KpiCard label="Reserva segura" value="R$ 96.000,00" delta="14 dias" deltaTone="info" />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_380px]">
+      <div className="grid grid-cols-[1fr_340px] gap-4">
         <SurfacePanel className="p-5" tone="base">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
                 Projeção vs realizado
               </p>
-              <h2 className="mt-1 text-2xl font-black text-text">Horizonte de {days} dias</h2>
+              <h2 className="mt-1 text-lg font-bold text-text">Horizonte de {days} dias</h2>
             </div>
             <Badge variant="aria">Aria Insight</Badge>
           </div>
-          <div className="mt-6 overflow-hidden rounded-[1.5rem] bg-surfaceLow p-4">
+          <div className="mt-4 overflow-hidden rounded-lg bg-surfaceLow p-4">
             <svg className="h-[260px] w-full" viewBox="0 0 700 260">
               <defs>
                 <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
@@ -104,11 +103,11 @@ export function CashflowBoard() {
         </SurfacePanel>
 
         <div className="space-y-4">
-          <SurfacePanel className="p-5" tone="glass">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+          <SurfacePanel className="p-4" tone="glass">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
               Aria alerta
             </p>
-            <p className="mt-2 text-lg font-semibold leading-8 text-text">
+            <p className="mt-2 text-sm font-semibold leading-6 text-text">
               O maior risco de caixa acontece quando folha e impostos se
               concentram no mesmo dia.
             </p>
@@ -119,12 +118,12 @@ export function CashflowBoard() {
             </p>
           </SurfacePanel>
 
-          <SurfacePanel className="p-5" tone="base">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+          <SurfacePanel className="p-4" tone="base">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
               Simulador
             </p>
-            <div className="mt-4 space-y-3">
-              <div className="rounded-2xl bg-surfaceLow p-4">
+            <div className="mt-3 space-y-3">
+              <div className="rounded-lg bg-surfaceLow p-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-bold text-text">Adiar pagamento X</p>
                   <Badge variant="warning">-3 dias</Badge>
@@ -143,11 +142,11 @@ export function CashflowBoard() {
             </div>
           </SurfacePanel>
 
-          <SurfacePanel className="p-5" tone="base">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+          <SurfacePanel className="p-4" tone="base">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
               Breakdown
             </p>
-            <TableShell className="mt-4">
+            <TableShell className="mt-3">
               <table className="w-full text-left text-sm">
                 <tbody>
                   {cashflowItems.map((item) => (

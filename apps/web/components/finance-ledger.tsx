@@ -6,6 +6,7 @@ import {
   Input,
   KpiCard,
   Label,
+  SectionHeader,
   SurfacePanel,
   TableShell,
 } from "@erp/ui";
@@ -45,26 +46,21 @@ export function FinanceLedger({
   scoreLabel?: string;
 }) {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
-            {eyebrow}
-          </p>
-          <h1 className="mt-1 text-4xl font-black tracking-tight text-text">
-            {title}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-            {description}
-          </p>
-        </div>
-        <Button href={actionHref} size="lg">
-          <Icon name="plus" className="h-4 w-4" />
-          {actionLabel}
-        </Button>
-      </div>
+    <div className="space-y-5">
+      <SectionHeader
+        eyebrow={eyebrow}
+        title={title}
+        description={description}
+        action={
+          <Button href={actionHref}>
+            <Icon name="plus" className="h-4 w-4" />
+            {actionLabel}
+          </Button>
+        }
+      />
 
-      <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
+      {/* KPI summary */}
+      <div className="grid grid-cols-4 gap-4">
         {summary.map((item) => (
           <KpiCard
             delta={item.delta}
@@ -76,31 +72,34 @@ export function FinanceLedger({
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_360px]">
-        <SurfacePanel className="p-4 md:p-5" tone="base">
-          <div className="mb-4 grid gap-3 lg:grid-cols-[1fr_150px_140px_140px]">
+      {/* Main content + sidebar */}
+      <div className="grid grid-cols-[1fr_300px] gap-4">
+        {/* Table panel */}
+        <SurfacePanel className="p-4" tone="base">
+          {/* Filters */}
+          <div className="mb-4 grid grid-cols-[1fr_140px_130px_auto] gap-3">
             <FieldGroup>
               <Label htmlFor="ledger-search">Buscar</Label>
               <Input id="ledger-search" placeholder="Fornecedor, cliente ou NF" />
             </FieldGroup>
             <FieldGroup>
               <Label htmlFor="ledger-status">Status</Label>
-              <div className="h-11 rounded-xl bg-surfaceHigh px-4 py-3 text-sm text-muted">
-                Vencido / a vencer
+              <div className="flex h-9 items-center rounded-lg border border-outline/20 bg-surface px-3 text-sm text-muted">
+                A vencer
               </div>
             </FieldGroup>
             <FieldGroup>
               <Label htmlFor="ledger-range">Período</Label>
-              <div className="h-11 rounded-xl bg-surfaceHigh px-4 py-3 text-sm text-muted">
+              <div className="flex h-9 items-center rounded-lg border border-outline/20 bg-surface px-3 text-sm text-muted">
                 Junho
               </div>
             </FieldGroup>
             <div className="flex items-end gap-2">
-              <Button className="w-full" variant="secondary">
+              <Button variant="secondary">
                 <Icon name="filter" className="h-4 w-4" />
                 Filtros
               </Button>
-              <Button className="shrink-0" variant="ghost">
+              <Button variant="ghost">
                 <Icon name="download" className="h-4 w-4" />
               </Button>
             </div>
@@ -108,44 +107,44 @@ export function FinanceLedger({
 
           <TableShell>
             <table className="w-full text-left">
-              <thead className="bg-surfaceLow text-[10px] font-bold uppercase tracking-[0.22em] text-muted">
+              <thead className="border-b border-outline/10 bg-surfaceLow">
                 <tr>
-                  <th className="px-5 py-4">Fornecedor / Cliente</th>
-                  <th className="px-5 py-4">Documento</th>
-                  <th className="px-5 py-4">Vencimento</th>
-                  <th className="px-5 py-4">Categoria</th>
-                  <th className="px-5 py-4">Centro de custo</th>
-                  <th className="px-5 py-4">Status</th>
-                  {scoreLabel ? <th className="px-5 py-4">{scoreLabel}</th> : null}
-                  <th className="px-5 py-4 text-right">Valor</th>
+                  <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">Fornecedor / Cliente</th>
+                  <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">Documento</th>
+                  <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">Vencimento</th>
+                  <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">Categoria</th>
+                  <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">Centro de custo</th>
+                  <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">Status</th>
+                  {scoreLabel ? <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted">{scoreLabel}</th> : null}
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-widest text-muted">Valor</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-outline/8">
                 {rows.map((row, index) => (
                   <tr
-                    className="border-t border-outline/10 transition-colors hover:bg-surfaceLow/70"
+                    className="transition-colors hover:bg-surfaceLow/50"
                     key={`${row.name}-${index}`}
                   >
-                    <td className="px-5 py-4">
-                      <p className="text-sm font-bold text-text">{row.name}</p>
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-semibold text-text">{row.name}</p>
                     </td>
-                    <td className="px-5 py-4 text-sm text-muted">{row.doc}</td>
-                    <td className="px-5 py-4 text-sm text-text">{row.due}</td>
-                    <td className="px-5 py-4 text-sm text-muted">{row.category}</td>
-                    <td className="px-5 py-4 text-sm text-muted">{row.costCenter}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 text-sm text-muted">{row.doc}</td>
+                    <td className="px-4 py-3 text-sm text-text">{row.due}</td>
+                    <td className="px-4 py-3 text-sm text-muted">{row.category}</td>
+                    <td className="px-4 py-3 text-sm text-muted">{row.costCenter}</td>
+                    <td className="px-4 py-3">
                       <Badge variant="info">{row.status}</Badge>
                     </td>
                     {scoreLabel ? (
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3">
                         {row.score ? (
                           <Badge variant={row.scoreTone ?? "success"}>{row.score}</Badge>
                         ) : (
-                          <Badge variant="neutral">-</Badge>
+                          <Badge variant="neutral">—</Badge>
                         )}
                       </td>
                     ) : null}
-                    <td className="px-5 py-4 text-right text-sm font-black text-text">
+                    <td className="px-4 py-3 text-right text-sm font-bold text-text">
                       {row.value}
                     </td>
                   </tr>
@@ -155,13 +154,14 @@ export function FinanceLedger({
           </TableShell>
         </SurfacePanel>
 
+        {/* Sidebar */}
         <div className="space-y-4">
           {sideCard}
-          <SurfacePanel className="p-5" tone="base">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+          <SurfacePanel className="p-4" tone="base">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
               Ações rápidas
             </p>
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               <Button className="w-full justify-between" variant="primary">
                 <span>Importar via OCR</span>
                 <Icon name="upload-cloud" className="h-4 w-4" />

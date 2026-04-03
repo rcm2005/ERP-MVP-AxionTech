@@ -58,24 +58,23 @@ export function ConciliationBoard() {
   const selectedCard = conciliationCards[selectedIndex];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-5">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
             Tesouraria inteligente
           </p>
-          <h1 className="mt-1 text-4xl font-black tracking-tight text-text">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-text">
             Conciliação Bancária
           </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-            Compare extrato bancário, sugestão da Aria e lançamento do ERP em
-            uma mesma tela.
+          <p className="mt-1 text-sm text-muted">
+            Compare extrato bancário, sugestão da Aria e lançamento do ERP em uma mesma tela.
           </p>
         </div>
         <Badge variant="success">85%+ auto-match</Badge>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-3 gap-4">
         {columns.map((column) => (
           <SurfacePanel className="p-4" key={column.title} tone={column.tone}>
             <div className="mb-4 flex items-center justify-between">
@@ -96,9 +95,9 @@ export function ConciliationBoard() {
                 return (
                   <button
                     className={cn(
-                      "w-full rounded-2xl border p-4 text-left transition-all",
+                      "w-full rounded-lg border p-3 text-left transition-all",
                       active
-                        ? "border-secondary/40 bg-surfaceHigh"
+                        ? "border-secondary/30 bg-surfaceHigh"
                         : "border-outline/15 bg-surfaceLow hover:bg-surfaceHigh/60",
                     )}
                     key={`${column.title}-${card.bank}-${index}`}
@@ -112,7 +111,7 @@ export function ConciliationBoard() {
                       </div>
                       <p className="text-sm font-black text-text">{entry.amount}</p>
                     </div>
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-2.5 flex items-center justify-between">
                       <Badge variant={entry.variant}>{entry.badge}</Badge>
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
                         {entry.meta}
@@ -127,12 +126,12 @@ export function ConciliationBoard() {
       </div>
 
       <SurfacePanel className="p-5" tone="base">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
               Match selecionado
             </p>
-            <h2 className="mt-1 text-2xl font-black text-text">
+            <h2 className="mt-1 text-lg font-bold text-text">
               {selectedCard.bank}
             </h2>
             <p className="mt-1 text-sm text-muted">{selectedCard.suggestion}</p>
@@ -149,7 +148,7 @@ export function ConciliationBoard() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="mt-4 grid grid-cols-[1.2fr_0.8fr] gap-4">
           <TableShell>
             <table className="w-full text-left text-sm">
               <tbody>

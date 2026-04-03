@@ -6,20 +6,20 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const buttonVariantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-secondary text-secondary-foreground shadow-[0_14px_34px_rgba(0,108,73,0.18)] hover:brightness-105",
+    "bg-secondary text-secondary-foreground shadow-[0_8px_24px_rgba(0,108,73,0.22)] hover:brightness-105 active:brightness-95",
   secondary:
-    "bg-surfaceHigh text-text hover:bg-surfaceHighest shadow-[0_12px_28px_rgba(11,28,48,0.06)]",
+    "bg-surfaceHigh text-text hover:bg-surfaceHighest shadow-[0_4px_12px_rgba(11,28,48,0.06)]",
   ghost: "bg-transparent text-text hover:bg-surfaceLow",
   outline:
     "bg-surface border border-outline/30 text-text hover:bg-surfaceLow",
   danger:
-    "bg-danger text-white shadow-[0_14px_34px_rgba(186,26,26,0.18)] hover:brightness-105",
+    "bg-danger text-white shadow-[0_8px_24px_rgba(186,26,26,0.22)] hover:brightness-105",
 };
 
 const buttonSizeStyles: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-11 px-4 text-sm",
-  lg: "h-12 px-5 text-base",
+  sm: "h-8 px-3 text-xs",
+  md: "h-9 px-4 text-sm",
+  lg: "h-10 px-5 text-sm",
 };
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -31,7 +31,7 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", href, type, children, ...props }, ref) => {
     const classes = cn(
-      "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aria focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50",
+      "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aria focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none",
       buttonVariantStyles[variant],
       buttonSizeStyles[size],
       className,
@@ -61,8 +61,7 @@ const badgeVariantStyles: Record<BadgeVariant, string> = {
   warning: "bg-amber-100 text-amber-800",
   danger: "bg-red-100 text-red-800",
   info: "bg-blue-100 text-blue-800",
-  aria:
-    "bg-gradient-to-r from-[color:var(--aria-start)] to-[color:var(--aria-end)] text-white",
+  aria: "bg-gradient-to-r from-[color:var(--aria-start)] to-[color:var(--aria-end)] text-white",
 };
 
 export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
@@ -73,7 +72,7 @@ export function Badge({ className, variant = "neutral", ...props }: BadgeProps) 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em]",
+        "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold tracking-wide",
         badgeVariantStyles[variant],
         className,
       )}
@@ -102,7 +101,7 @@ export function SurfacePanel({
   return (
     <div
       className={cn(
-        "rounded-[1.5rem] shadow-[0_20px_60px_rgba(11,28,48,0.08)]",
+        "rounded-xl border border-outline/10 shadow-[0_2px_12px_rgba(11,28,48,0.06)]",
         panelToneStyles[tone],
         className,
       )}
@@ -117,7 +116,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     <input
       ref={ref}
       className={cn(
-        "h-11 w-full rounded-xl bg-surfaceHighest px-4 text-sm text-text placeholder:text-muted transition-all outline-none ring-0 focus:bg-surface focus:ring-2 focus:ring-aria/40",
+        "h-9 w-full rounded-lg border border-outline/20 bg-surface px-3 text-sm text-text placeholder:text-muted/60 transition-all outline-none focus:border-aria/40 focus:ring-2 focus:ring-aria/20",
         className,
       )}
       {...props}
@@ -132,7 +131,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     <textarea
       ref={ref}
       className={cn(
-        "min-h-[112px] w-full rounded-xl bg-surfaceHighest px-4 py-3 text-sm text-text placeholder:text-muted transition-all outline-none focus:bg-surface focus:ring-2 focus:ring-aria/40",
+        "min-h-[96px] w-full rounded-lg border border-outline/20 bg-surface px-3 py-2 text-sm text-text placeholder:text-muted/60 transition-all outline-none focus:border-aria/40 focus:ring-2 focus:ring-aria/20",
         className,
       )}
       {...props}
@@ -147,7 +146,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     <select
       ref={ref}
       className={cn(
-        "h-11 w-full appearance-none rounded-xl bg-surfaceHighest px-4 text-sm text-text transition-all outline-none focus:bg-surface focus:ring-2 focus:ring-aria/40",
+        "h-9 w-full appearance-none rounded-lg border border-outline/20 bg-surface px-3 text-sm text-text transition-all outline-none focus:border-aria/40 focus:ring-2 focus:ring-aria/20",
         className,
       )}
       {...props}
@@ -165,7 +164,7 @@ export function Label({
   return (
     <label
       className={cn(
-        "mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-muted",
+        "block text-xs font-semibold text-muted",
         className,
       )}
       {...props}
@@ -190,18 +189,18 @@ export function SectionHeader({
     <div className="flex items-start justify-between gap-4">
       <div>
         {eyebrow ? (
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-muted">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="text-2xl font-black tracking-tight text-text md:text-[2rem]">
+        <h2 className="text-2xl font-bold tracking-tight text-text">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+          <p className="mt-1 text-sm text-muted">{description}</p>
         ) : null}
       </div>
-      {action ? <div>{action}</div> : null}
+      {action ? <div className="flex-shrink-0">{action}</div> : null}
     </div>
   );
 }
@@ -229,21 +228,21 @@ export function KpiCard({
   footer,
 }: KpiCardProps) {
   return (
-    <SurfacePanel tone="base" className="p-5 md:p-6">
-      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted">
+    <SurfacePanel tone="base" className="p-5">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted">
         {label}
       </p>
-      <div className="mt-2 flex items-end justify-between gap-3">
-        <div className="text-[1.65rem] font-black tracking-tight text-text md:text-[2rem]">
+      <div className="mt-2 flex items-end justify-between gap-2">
+        <div className="text-2xl font-bold tracking-tight text-text">
           {value}
         </div>
         {delta ? (
-          <Badge className={deltaToneStyles[deltaTone]} variant="neutral">
+          <Badge className={cn("shrink-0", deltaToneStyles[deltaTone])} variant="neutral">
             {delta}
           </Badge>
         ) : null}
       </div>
-      {footer ? <p className="mt-2 text-xs text-muted">{footer}</p> : null}
+      {footer ? <p className="mt-1.5 text-xs text-muted">{footer}</p> : null}
     </SurfacePanel>
   );
 }
@@ -260,8 +259,8 @@ export function TableShell({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[1.75rem] bg-surface shadow-[0_20px_60px_rgba(11,28,48,0.08)]",
-        compact ? "ring-1 ring-outline/20" : "",
+        "overflow-hidden rounded-xl border border-outline/10 bg-surface",
+        compact ? "ring-1 ring-outline/15" : "",
         className,
       )}
       {...props}
@@ -270,7 +269,7 @@ export function TableShell({
 }
 
 export function Divider({ className }: { className?: string }) {
-  return <div className={cn("h-px w-full bg-outline/20", className)} />;
+  return <div className={cn("h-px w-full bg-outline/15", className)} />;
 }
 
 export function FieldGroup({

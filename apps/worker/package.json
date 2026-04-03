@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc -p tsconfig.json",
@@ -17,6 +15,9 @@
     "@erp/logging": "workspace:*"
   },
   "devDependencies": {
-    "tsx": "^4.19.4"
+    "@types/node": "^22.15.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
   }
 }
