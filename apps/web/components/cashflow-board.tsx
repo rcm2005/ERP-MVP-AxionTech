@@ -2,20 +2,39 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Button, KpiCard, SurfacePanel, TableShell } from "@erp/ui";
+import { useShallow } from "zustand/react/shallow";
 import { Icon } from "./icons";
-import { cashflowItems } from "@/lib/mock-data";
-import { formatCurrency } from "@/lib/format";
+import {
+  formatCurrencyFromCents,
+  selectCashflowBreakdown,
+  selectWorkspaceSnapshot,
+  useDemoWorkspace,
+} from "@/lib/demo-workspace";
 
 const horizons = [30, 60, 90] as const;
 
 export function CashflowBoard() {
   const [days, setDays] = useState<(typeof horizons)[number]>(60);
+  const snapshot = useDemoWorkspace(useShallow(selectWorkspaceSnapshot));
+  const breakdown = useDemoWorkspace(useShallow(selectCashflowBreakdown));
 
   const chart = useMemo(() => {
-    const points = days === 30 ? [58, 52, 56, 49, 44, 38, 45] : days === 60 ? [55, 50, 48, 54, 46, 42, 49] : [52, 49, 44, 48, 40, 37, 41];
-    const projected = days === 30 ? [58, 61, 64, 66, 69, 72, 75] : days === 60 ? [55, 58, 62, 65, 68, 72, 77] : [52, 56, 59, 63, 67, 72, 78];
+    const pendingWeight = Math.max(1, snapshot.pendingMatches);
+    const base = days === 30 ? 58 : days === 60 ? 55 : 52;
+    const points =
+      days === 30
+        ? [base, 53, 56, 50, 46 - pendingWeight, 42, 47]
+        : days === 60
+          ? [base, 51, 49, 55, 48 - pendingWeight, 45, 52]
+          : [base, 50, 46, 49, 44 - pendingWeight, 40, 44];
+    const projected =
+      days === 30
+        ? [base, 62, 64, 66, 69, 71, 74]
+        : days === 60
+          ? [base, 59, 62, 65, 68, 72, 76]
+          : [base, 57, 60, 64, 67, 71, 75];
     return { points, projected };
-  }, [days]);
+  }, [days, snapshot.pendingMatches]);
 
   return (
     <div className="space-y-5">
@@ -28,7 +47,7 @@ export function CashflowBoard() {
             Fluxo de Caixa
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Compare realizado e projetado, simule atraso de pagamento e veja a leitura da Aria.
+            Compare o impacto dos lançamentos e das conciliações pendentes antes de fechar a semana.
           </p>
         </div>
         <div className="flex rounded-lg bg-surfaceHigh p-1">
@@ -48,9 +67,24 @@ export function CashflowBoard() {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <KpiCard label="Saldo projetado" value="R$ 218.420,00" delta="+12,4%" deltaTone="success" />
-        <KpiCard label="Ponto de atenção" value="15 de junho" delta="folha e impostos" deltaTone="warning" />
-        <KpiCard label="Reserva segura" value="R$ 96.000,00" delta="14 dias" deltaTone="info" />
+        <KpiCard
+          label="Saldo projetado"
+          value={formatCurrencyFromCents(snapshot.saldoCents + snapshot.contasReceber7dCents - snapshot.contasPagar7dCents)}
+          delta="documentos e caixa conectados"
+          deltaTone="success"
+        />
+        <KpiCard
+          label="Ponto de atenção"
+          value={`${snapshot.pendingMatches} match(es)`}
+          delta="podem distorcer a leitura do caixa"
+          deltaTone="warning"
+        />
+        <KpiCard
+          label="Reserva segura"
+          value={formatCurrencyFromCents(Math.max(snapshot.saldoCents - snapshot.contasPagar7dCents, 0))}
+          delta="após compromissos críticos"
+          deltaTone="info"
+        />
       </div>
 
       <div className="grid grid-cols-[1fr_340px] gap-4">
@@ -112,9 +146,9 @@ export function CashflowBoard() {
               concentram no mesmo dia.
             </p>
             <p className="mt-3 text-sm leading-6 text-muted">
-              Se você adiar o pagamento X por 3 dias, o saldo mínimo sobe de R${" "}
-              {days === 30 ? "38 mil" : days === 60 ? "44 mil" : "41 mil"} para
-              aproximadamente R$ 56 mil.
+              Se você confirmar os créditos conciliados e lançar o documento
+              que já está validado, o saldo projetado melhora sem maquiagem de
+              dashboard.
             </p>
           </SurfacePanel>
 
@@ -126,18 +160,18 @@ export function CashflowBoard() {
               <div className="rounded-lg bg-surfaceLow p-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-bold text-text">Adiar pagamento X</p>
-                  <Badge variant="warning">-3 dias</Badge>
+                  <Badge variant="warning">cenário manual</Badge>
                 </div>
                 <div className="mt-3 h-2 rounded-full bg-surfaceHigh">
-                  <div className="h-2 w-2/3 rounded-full bg-secondary" />
+                  <div className="h-2 w-3/4 rounded-full bg-secondary" />
                 </div>
                 <p className="mt-2 text-xs text-muted">
-                  Ajuste o calendário e observe o impacto no saldo mínimo.
+                  Use a conciliação e o inbox para reduzir incerteza antes de empurrar datas.
                 </p>
               </div>
-              <Button className="w-full" variant="secondary">
-                <Icon name="sparkles" className="h-4 w-4" />
-                Simular cenário
+              <Button className="w-full" href="/financeiro/conciliacao" variant="secondary">
+                <Icon name="bank" className="h-4 w-4" />
+                Revisar conciliações
               </Button>
             </div>
           </SurfacePanel>
@@ -149,11 +183,11 @@ export function CashflowBoard() {
             <TableShell className="mt-3">
               <table className="w-full text-left text-sm">
                 <tbody>
-                  {cashflowItems.map((item) => (
+                  {breakdown.map((item) => (
                     <tr className="border-t border-outline/10" key={item.label}>
                       <td className="px-4 py-3 text-muted">{item.label}</td>
                       <td className="px-4 py-3 text-right font-black text-text">
-                        {formatCurrency(item.value)}
+                        {formatCurrencyFromCents(item.valueCents)}
                       </td>
                     </tr>
                   ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Badge,
   Button,
@@ -8,13 +9,13 @@ import {
   HelperText,
   Input,
   Label,
-  Select,
   SurfacePanel,
   Textarea,
 } from "@erp/ui";
 import { Icon } from "./icons";
 import { onboardingSteps } from "@/lib/mock-data";
 import { cn } from "@erp/ui";
+import { useDemoWorkspace } from "@/lib/demo-workspace";
 
 const stepFields = [
   {
@@ -57,24 +58,114 @@ const stepFields = [
 ] as const;
 
 export function OnboardingWizard() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
+  const onboarding = useDemoWorkspace((state) => state.onboarding);
+  const updateOnboarding = useDemoWorkspace((state) => state.updateOnboarding);
 
   useEffect(() => {
-    const stored = window.sessionStorage.getItem("onboarding-step");
-    if (!stored) return;
-
-    const parsed = Number(stored);
-    if (Number.isFinite(parsed) && parsed >= 0 && parsed < stepFields.length) {
-      setStep(parsed);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.sessionStorage.setItem("onboarding-step", String(step));
-  }, [step]);
+    setStep(onboarding.currentStep);
+  }, [onboarding.currentStep]);
 
   const active = onboardingSteps[step];
   const activeFields = stepFields[step];
+
+  function updateField(fieldId: string, value: string) {
+    if (fieldId === "razaoSocial") {
+      updateOnboarding({ legalName: value });
+      return;
+    }
+
+    if (fieldId === "segmento") {
+      updateOnboarding({ segment: value });
+      return;
+    }
+
+    if (fieldId === "funcionarios") {
+      updateOnboarding({ employees: value });
+      return;
+    }
+
+    if (fieldId === "regime") {
+      updateOnboarding({ fiscalRegime: value });
+      return;
+    }
+
+    if (fieldId === "cnae") {
+      updateOnboarding({ cnae: value });
+      return;
+    }
+
+    if (fieldId === "certificado") {
+      updateOnboarding({ certificate: value });
+      return;
+    }
+
+    if (fieldId === "modulos") {
+      updateOnboarding({ moduleFocus: value });
+      return;
+    }
+
+    if (fieldId === "banco") {
+      updateOnboarding({ bankName: value });
+      return;
+    }
+
+    if (fieldId === "agencia") {
+      updateOnboarding({ bankAgency: value });
+      return;
+    }
+
+    if (fieldId === "conta") {
+      updateOnboarding({ bankAccount: value });
+      return;
+    }
+
+    if (fieldId === "arquivo") {
+      updateOnboarding({ firstImportFile: value });
+      return;
+    }
+
+    if (fieldId === "notas") {
+      updateOnboarding({ notes: value });
+      return;
+    }
+  }
+
+  function getFieldValue(fieldId: string) {
+    if (fieldId === "razaoSocial") return onboarding.profile.legalName;
+    if (fieldId === "segmento") return onboarding.profile.segment;
+    if (fieldId === "funcionarios") return onboarding.profile.employees;
+    if (fieldId === "regime") return onboarding.profile.fiscalRegime;
+    if (fieldId === "cnae") return onboarding.profile.cnae;
+    if (fieldId === "certificado") return onboarding.profile.certificate;
+    if (fieldId === "banco") return onboarding.bankName;
+    if (fieldId === "agencia") return onboarding.bankAgency;
+    if (fieldId === "conta") return onboarding.bankAccount;
+    if (fieldId === "arquivo") return onboarding.firstImportFile;
+    if (fieldId === "modulos") return onboarding.moduleFocus;
+    if (fieldId === "notas") return onboarding.notes;
+
+    return "";
+  }
+
+  function advanceStep() {
+    if (step === stepFields.length - 1) {
+      updateOnboarding({
+        currentStep: step,
+        completedStep: step,
+      });
+      router.push("/dashboard");
+      return;
+    }
+
+    const nextStep = Math.min(stepFields.length - 1, step + 1);
+    setStep(nextStep);
+    updateOnboarding({
+      currentStep: nextStep,
+      completedStep: step,
+    });
+  }
 
   return (
     <SurfacePanel className="overflow-hidden p-0" tone="base">
@@ -103,7 +194,10 @@ export function OnboardingWizard() {
                     : "bg-surfaceHigh text-muted",
               )}
               key={item.label}
-              onClick={() => setStep(index)}
+              onClick={() => {
+                setStep(index);
+                updateOnboarding({ currentStep: index });
+              }}
               type="button"
             >
               {index + 1}
@@ -122,9 +216,19 @@ export function OnboardingWizard() {
               >
                 <Label htmlFor={field.id}>{field.label}</Label>
                 {field.id === "notas" ? (
-                  <Textarea id={field.id} placeholder={field.placeholder} />
+                  <Textarea
+                    id={field.id}
+                    onChange={(event) => updateField(field.id, event.target.value)}
+                    placeholder={field.placeholder}
+                    value={getFieldValue(field.id)}
+                  />
                 ) : (
-                  <Input id={field.id} placeholder={field.placeholder} />
+                  <Input
+                    id={field.id}
+                    onChange={(event) => updateField(field.id, event.target.value)}
+                    placeholder={field.placeholder}
+                    value={getFieldValue(field.id)}
+                  />
                 )}
               </FieldGroup>
             ))}
@@ -139,17 +243,21 @@ export function OnboardingWizard() {
             </div>
             <p className="mt-2 text-sm leading-6 text-text">
               {step === 0 && "Use o CNPJ para preencher a empresa e reduzir retrabalho."}
-              {step === 1 && "Se houver certificado digital, já deixe o caminho fiscal pronto."}
-              {step === 2 && "A conciliação fica mais estável quando a conta bancária entra cedo."}
-              {step === 3 && "Importe o primeiro CSV/XLSX para acelerar o time to value."}
-              {step === 4 && "Aria sugere módulos com base em operação e urgência financeira."}
+              {step === 1 && "Deixe claro o regime fiscal e o certificado para evitar ambiguidade operacional."}
+              {step === 2 && "O banco certo cedo significa conciliação menos frágil depois."}
+              {step === 3 && "O primeiro documento importado é o que transforma demo em operação."}
+              {step === 4 && "Ative só o que reduz retrabalho agora: financeiro, documentos e conciliação."}
             </p>
           </div>
 
           <div className="flex items-center justify-between gap-3">
             <Button
               disabled={step === 0}
-              onClick={() => setStep((current) => Math.max(0, current - 1))}
+              onClick={() => {
+                const previous = Math.max(0, step - 1);
+                setStep(previous);
+                updateOnboarding({ currentStep: previous });
+              }}
               variant="ghost"
             >
               <Icon name="arrow-left" className="h-4 w-4" />
@@ -157,10 +265,10 @@ export function OnboardingWizard() {
             </Button>
             <div className="flex items-center gap-3">
               <HelperText>
-                Meta: concluir em menos de 30 minutos.
+                Meta: sair do onboarding com um primeiro loop operacional definido.
               </HelperText>
               <Button
-                onClick={() => setStep((current) => Math.min(stepFields.length - 1, current + 1))}
+                onClick={advanceStep}
                 type="button"
               >
                 {step === stepFields.length - 1 ? "Finalizar" : "Próximo passo"}
@@ -178,16 +286,16 @@ export function OnboardingWizard() {
             <div className="mt-3 space-y-2">
               <div className="rounded-lg bg-surfaceLow p-3">
                 <p className="text-xs font-semibold text-text">Empresa</p>
-                <p className="mt-0.5 text-xs text-muted">Empresa Exemplo Ltda</p>
+                <p className="mt-0.5 text-xs text-muted">{onboarding.profile.legalName}</p>
               </div>
               <div className="rounded-lg bg-surfaceLow p-3">
                 <p className="text-xs font-semibold text-text">Regime</p>
-                <p className="mt-0.5 text-xs text-muted">Simples Nacional</p>
+                <p className="mt-0.5 text-xs text-muted">{onboarding.profile.fiscalRegime}</p>
               </div>
               <div className="rounded-lg bg-surfaceLow p-3">
                 <p className="text-xs font-semibold text-text">Primeiro objetivo</p>
                 <p className="mt-0.5 text-xs text-muted">
-                  Lançar a primeira operação e chegar ao dashboard em menos de 30 min.
+                  {onboarding.profile.activationGoal}
                 </p>
               </div>
             </div>

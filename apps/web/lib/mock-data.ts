@@ -2,11 +2,11 @@ import { brandTokens } from "@erp/ui";
 
 export const brand = {
   ...brandTokens.brand,
-  legalName: "Empresa Exemplo Ltda",
+  legalName: "Horizonte Finance Ops Ltda",
   cnpj: "12.345.678/0001-90",
   cnpjMasked: "**.***.***/0001-90",
-  plan: "Trial 14 dias",
-  segment: "Serviços / Tecnologia",
+  plan: "Workspace beta",
+  segment: "Serviços B2B",
 };
 
 export const authHighlights = [
@@ -27,28 +27,28 @@ export const authHighlights = [
 export const onboardingSteps = [
   {
     label: "Perfil da empresa",
-    title: "Complete os dados do CNPJ e da operação",
-    description: "Razão social, segmento e número de pessoas no time.",
+    title: "Defina quem vai operar o financeiro no dia a dia",
+    description: "Razão social, segmento e tamanho da equipe operacional.",
   },
   {
     label: "Regime fiscal",
-    title: "Ajuste o regime e a base fiscal",
-    description: "Simples, Presumido ou Real, com CNAE e certificado digital.",
+    title: "Reduza ambiguidade fiscal logo no início",
+    description: "Regime, CNAE e certificado para evitar retrabalho depois.",
   },
   {
     label: "Conta bancária",
-    title: "Conecte Open Finance ou insira os dados manualmente",
-    description: "Use Pluggy/Belvo ou cadastre a conta para iniciar a conciliação.",
+    title: "Prepare a conciliação desde o primeiro uso",
+    description: "Conta bancária e origem dos movimentos que afetam o caixa.",
   },
   {
     label: "Dados iniciais",
-    title: "Importe CP/CR em planilha ou comece do zero",
-    description: "A primeira operação deve caber em menos de 30 minutos.",
+    title: "Escolha o primeiro documento que vai virar operação",
+    description: "A primeira importação deve provar valor rápido, sem migração total.",
   },
   {
     label: "Módulos ativos",
-    title: "Ative os módulos que fazem sentido agora",
-    description: "Aria sugere a melhor configuração a partir do perfil da empresa.",
+    title: "Ative só o núcleo que reduz retrabalho agora",
+    description: "Financeiro, documentos, conciliação e suporte assistido por IA.",
   },
 ] as const;
 
@@ -214,4 +214,3 @@ export const ariaQuickChips = [
   "Ler NF-e",
   "Resumo do dia",
 ];
-

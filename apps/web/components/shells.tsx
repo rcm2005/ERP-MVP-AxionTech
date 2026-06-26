@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { brandTokens, SurfacePanel } from "@erp/ui";
+import { useShallow } from "zustand/react/shallow";
 import { Icon } from "./icons";
 import { AriaPanel } from "./aria-panel";
 import { cn } from "@erp/ui";
-import { quickActions } from "@/lib/mock-data";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { selectWorkspaceSnapshot, useDemoWorkspace } from "@/lib/demo-workspace";
 
 // ─── Auth Shell ────────────────────────────────────────────────────────────────
 
@@ -38,17 +39,18 @@ export function AuthShell({
 
         <div className="relative z-10">
           <h2 className="text-4xl font-bold leading-tight tracking-tight text-white">
-            A arquitetura inteligente para sua operação financeira.
+            Feche o financeiro com documentos, lançamentos e conciliação no mesmo fluxo.
           </h2>
           <p className="mt-4 text-sm leading-7 text-white/65">
-            Tudo em português do Brasil, com foco em caixa, fiscal e
-            produtividade. A Aria acompanha cada tela como copilot global.
+            O foco agora não é parecer um ERP de tudo para todos. O foco é dar
+            visibilidade e controle para PMEs brasileiras que ainda vivem entre
+            planilhas, anexos e retrabalho.
           </p>
           <div className="mt-8 space-y-2.5">
             {[
-              { icon: "lock" as const, text: "Login com Google e fallback seguro" },
-              { icon: "settings" as const, text: "Onboarding assistido em 5 passos" },
-              { icon: "chart" as const, text: "Telas financeiras fiéis ao Stitch" },
+              { icon: "file-search" as const, text: "Inbox operacional para boletos, NF-e e contratos" },
+              { icon: "wallet" as const, text: "Contas a pagar e receber com menos retrabalho" },
+              { icon: "bank" as const, text: "Conciliação assistida antes do fechamento de caixa" },
             ].map((item) => (
               <div
                 key={item.text}
@@ -63,10 +65,10 @@ export function AuthShell({
 
         <div className="relative z-10 rounded-xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50">
-            Aria Intelligence
+            Horizonte Focus
           </p>
           <p className="mt-2 text-sm leading-6 text-white/85">
-            &quot;Você tem 3 boletos vencendo hoje. Quer revisar o impacto no caixa agora?&quot;
+            &quot;Importe o documento, gere o lançamento e confirme o match bancário sem abrir outra planilha.&quot;
           </p>
         </div>
       </aside>
@@ -105,10 +107,10 @@ export function OnboardingShell({
 
         <div className="mt-6 rounded-lg bg-surfaceLow p-4">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
-            Aria Intelligence
+            Horizonte wedge
           </p>
           <p className="mt-2 text-xs leading-5 text-text">
-            Vamos configurar sua empresa em menos de 5 minutos.
+            Configure o mínimo necessário para operar financeiro, documentos e conciliação.
           </p>
         </div>
 
@@ -157,11 +159,12 @@ export function OnboardingShell({
 
 const navItems = [
   { href: "/dashboard", label: "Início", icon: "home" as const },
-  { href: "/financeiro/pagar", label: "Financeiro", icon: "wallet" as const },
+  { href: "/financeiro/pagar", label: "Contas a pagar", icon: "wallet" as const },
+  { href: "/financeiro/receber", label: "Contas a receber", icon: "money" as const },
+  { href: "/financeiro/fluxo-caixa", label: "Fluxo de caixa", icon: "chart" as const },
+  { href: "/financeiro/conciliacao", label: "Conciliação", icon: "bank" as const },
   { href: "/documentos/inbox", label: "Documentos", icon: "file" as const },
-  { href: "/crm/pipeline", label: "CRM", icon: "layout" as const },
-  { href: "/bi/dashboard", label: "BI", icon: "chart" as const },
-  { href: "/config/empresa", label: "Config", icon: "settings" as const },
+  { href: "/onboarding", label: "Onboarding", icon: "settings" as const },
 ];
 
 function NavLink({
@@ -195,6 +198,25 @@ export function AppShell({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const pathname = usePathname();
+  const company = useDemoWorkspace((state) => state.company);
+  const snapshot = useDemoWorkspace(useShallow(selectWorkspaceSnapshot));
+
+  const pageTitle =
+    pathname === "/dashboard"
+      ? "Painel principal"
+      : pathname === "/financeiro/pagar"
+        ? "Contas a pagar"
+        : pathname === "/financeiro/receber"
+          ? "Contas a receber"
+          : pathname === "/financeiro/fluxo-caixa"
+            ? "Fluxo de caixa"
+            : pathname === "/financeiro/conciliacao"
+              ? "Conciliação bancária"
+              : pathname.startsWith("/documentos")
+                ? "Inbox de documentos"
+                : pathname === "/onboarding"
+                  ? "Onboarding operacional"
+                  : "Horizonte";
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f9ff]">
@@ -207,7 +229,7 @@ export function AppShell({
           </div>
           <div className="min-w-0">
             <p className="truncate text-xs font-bold text-white">{brandTokens.brand.name}</p>
-            <p className="text-[10px] text-white/40">Empresa Demo</p>
+            <p className="text-[10px] text-white/40">{company.tradeName}</p>
           </div>
         </div>
 
@@ -230,10 +252,10 @@ export function AppShell({
         <div className="border-t border-white/8 p-3">
           <div className="rounded-lg bg-white/6 p-3">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
-              Aria
+              Operação
             </p>
             <p className="mt-1 text-xs leading-5 text-white/65">
-              3 boletos vencem hoje.
+              {snapshot.pendingMatches} conciliação(ões) aguardando confirmação.
             </p>
           </div>
         </div>
@@ -244,7 +266,7 @@ export function AppShell({
         {/* Topbar */}
         <header className="flex h-12 flex-shrink-0 items-center justify-between border-b border-outline/10 bg-surface px-6">
           <div>
-            <h2 className="text-sm font-semibold text-text">Painel principal</h2>
+            <h2 className="text-sm font-semibold text-text">{pageTitle}</h2>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -275,6 +297,27 @@ export function AppShell({
 // ─── Quick Action Bar ──────────────────────────────────────────────────────────
 
 export function QuickActionBar() {
+  const quickActions = [
+    {
+      label: "Importar documento",
+      subtitle: "Levar para o inbox",
+      icon: "upload-cloud" as const,
+      href: "/documentos/inbox",
+    },
+    {
+      label: "Criar cobrança",
+      subtitle: "Abrir contas a receber",
+      icon: "money" as const,
+      href: "/financeiro/receber",
+    },
+    {
+      label: "Revisar conciliação",
+      subtitle: "Fechar caixa com confiança",
+      icon: "bank" as const,
+      href: "/financeiro/conciliacao",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-3 gap-3">
       {quickActions.map((action) => (
@@ -289,7 +332,7 @@ export function QuickActionBar() {
             </div>
             <div>
               <p className="text-sm font-semibold text-text">{action.label}</p>
-              <p className="text-xs text-muted">Atalho rápido</p>
+              <p className="text-xs text-muted">{action.subtitle}</p>
             </div>
           </div>
           <Icon

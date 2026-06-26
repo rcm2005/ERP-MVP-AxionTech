@@ -64,7 +64,7 @@ export default function LoginPage() {
           Bem-vindo de volta
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Entre com Google ou e-mail para continuar.
+          Entre no workspace beta focado em financeiro, documentos e conciliação.
         </p>
       </div>
 
@@ -101,8 +101,8 @@ export default function LoginPage() {
         <FieldGroup>
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Senha</Label>
-            <Link className="text-xs font-semibold text-secondary hover:underline" href="#">
-              Esqueci minha senha
+            <Link className="text-xs font-semibold text-secondary hover:underline" href="/suporte">
+              Preciso de ajuda
             </Link>
           </div>
           <div className="relative">
@@ -130,7 +130,7 @@ export default function LoginPage() {
         <div className="flex items-start gap-3 rounded-lg bg-surfaceLow px-3 py-3">
           <Icon name="lock" className="mt-0.5 h-4 w-4 flex-shrink-0 text-secondary" />
           <HelperText>
-            Em breve: acesso financeiro completo com validação em dois fatores (TOTP / SMS).
+            Em evolução: sessão persistente, 2FA real e trilha de acesso para endurecimento do produto.
           </HelperText>
         </div>
 
@@ -156,14 +156,15 @@ export default function LoginPage() {
 
         <SurfacePanel tone="low" className="px-3 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
-            Credenciais de teste
+            Acesso do workspace beta
           </p>
           <div className="mt-2 space-y-1.5 text-xs text-text">
             {DEMO_TEST_EMAILS.map((test_email) => (
               <p key={test_email}>{test_email}</p>
             ))}
             <p className="pt-1 text-muted">
-              Senha padrão: <span className="font-semibold text-text">{DEMO_TEST_PASSWORD}</span>
+              Senha de acesso temporária:{" "}
+              <span className="font-semibold text-text">{DEMO_TEST_PASSWORD}</span>
             </p>
           </div>
         </SurfacePanel>
@@ -172,16 +173,16 @@ export default function LoginPage() {
           <div className="flex items-start gap-2.5">
             <Icon name="lock" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-secondary" />
             <p className="text-xs leading-5 text-muted">
-              Em breve: lockout após 5 tentativas, magic link e 2FA para proteger os dados de{" "}
+              Prioridade atual: provar um loop operacional real. O próximo hardening inclui lockout, magic link e 2FA para proteger os dados de{" "}
               <span className="font-medium text-text">{brand.legalName}</span>.
             </p>
           </div>
         </SurfacePanel>
 
         <div className="flex items-center gap-4 text-[11px] text-muted">
-          <Link href="#" className="hover:text-text">Privacidade</Link>
-          <Link href="#" className="hover:text-text">Termos</Link>
-          <Link href="#" className="hover:text-text">Suporte</Link>
+          <Link href="/privacidade" className="hover:text-text">Privacidade</Link>
+          <Link href="/termos" className="hover:text-text">Termos</Link>
+          <Link href="/suporte" className="hover:text-text">Suporte</Link>
         </div>
       </div>
     </div>

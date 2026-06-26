@@ -3,9 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Badge, Button, Input } from "@erp/ui";
+import { useShallow } from "zustand/react/shallow";
 import { Icon } from "./icons";
-import { ariaQuickChips } from "@/lib/mock-data";
 import { cn } from "@erp/ui";
+import {
+  formatCurrencyFromCents,
+  selectWorkspaceSnapshot,
+  useDemoWorkspace,
+} from "@/lib/demo-workspace";
 
 type Message = {
   role: "user" | "assistant";
@@ -27,6 +32,8 @@ const screenMap: Record<string, string> = {
 export function AriaPanel() {
   const pathname = usePathname();
   const screen = screenMap[pathname] ?? "Tela atual";
+  const snapshot = useDemoWorkspace(useShallow(selectWorkspaceSnapshot));
+  const company = useDemoWorkspace((state) => state.company);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -40,14 +47,14 @@ export function AriaPanel() {
 
   const suggestedChips = useMemo(() => {
     if (pathname.includes("/financeiro")) {
-      return ["Ver vencimentos", "Sinalizar risco", "Atualizar previsão"];
+      return ["Ver vencimentos", "Revisar caixa", "Abrir conciliação"];
     }
 
     if (pathname.includes("/documentos")) {
-      return ["Validar NF-e", "Extrair boleto", "Revisar pendências"];
+      return ["Lançar documento", "Revisar pendências", "Abrir contas"];
     }
 
-    return ariaQuickChips;
+    return ["Ver caixa", "Próximo passo", "Resumo do dia"];
   }, [pathname]);
 
   useEffect(() => {
@@ -58,14 +65,32 @@ export function AriaPanel() {
         ...current,
         {
           role: "assistant",
-          text: `Contexto capturado: ${screen}. Posso agir com base nos dados dessa tela.`,
+          text: `Contexto capturado: ${screen}. ${company.tradeName} tem ${snapshot.pendingMatches} conciliações pendentes e ${snapshot.readyDocuments} documento(s) pronto(s) para lançamento.`,
           meta: "Contexto da tela",
         },
       ]);
     }, 250);
 
     return () => window.clearTimeout(timer);
-  }, [open, screen]);
+  }, [company.tradeName, open, screen, snapshot.pendingMatches, snapshot.readyDocuments]);
+
+  function buildReply(text: string) {
+    const normalized = text.toLowerCase();
+
+    if (normalized.includes("caixa")) {
+      return `Saldo operacional de referência: ${formatCurrencyFromCents(snapshot.saldoCents)}, com ${snapshot.pendingMatches} match(es) ainda influenciando a leitura.`;
+    }
+
+    if (normalized.includes("concil")) {
+      return `Hoje o gargalo mais claro é a conciliação: ${snapshot.pendingMatches} item(ns) aguardando confirmação antes do fechamento.`;
+    }
+
+    if (normalized.includes("document")) {
+      return `O inbox já tem ${snapshot.readyDocuments} documento(s) validado(s). O próximo ganho real vem de transformá-los em lançamento.`;
+    }
+
+    return "Posso te ajudar a decidir o próximo passo entre inbox, lançamentos e conciliação.";
+  }
 
   function sendMessage(text: string) {
     if (!text.trim()) return;
@@ -75,8 +100,8 @@ export function AriaPanel() {
       { role: "user", text },
       {
         role: "assistant",
-        text: "🔍 Buscando dados financeiros e preparando a próxima ação.",
-        meta: "Tool call: buscar_dados_financeiros",
+        text: "Buscando contexto operacional e organizando a próxima ação.",
+        meta: "Leitura do workspace",
       },
     ]);
 
@@ -86,7 +111,7 @@ export function AriaPanel() {
         ...current.filter((entry) => entry.meta !== "streaming"),
         {
           role: "assistant",
-          text: "Achei 3 itens prioritários. Quer que eu abra a visão detalhada ou monte um resumo executivo?",
+          text: buildReply(text),
           meta: "Resposta pronta",
         },
       ]);
@@ -129,8 +154,8 @@ export function AriaPanel() {
             </Badge>
           </div>
           <p className="mt-2 text-sm text-white/80">
-            Contexto da tela injetado automaticamente. Ações financeiras exigem
-            confirmação explícita.
+            Contexto operacional injetado automaticamente. Ações financeiras
+            seguem assistidas e exigem confirmação explícita.
           </p>
         </div>
 
@@ -171,9 +196,9 @@ export function AriaPanel() {
               <div className="rounded-2xl bg-surfaceLow px-3 py-2 text-sm text-muted">
                 <span className="inline-flex items-center gap-2">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-aria" />
-                  Tool call em andamento
-                </span>
-              </div>
+              Tool call em andamento
+            </span>
+          </div>
             ) : null}
           </div>
 

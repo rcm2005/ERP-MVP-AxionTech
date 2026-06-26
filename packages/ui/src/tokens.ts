@@ -1,7 +1,7 @@
 export const brandTokens = {
   brand: {
-    name: "Horizonte ERP",
-    tagline: "A arquitetura inteligente para a sua operação financeira.",
+    name: "Horizonte",
+    tagline: "Financeiro, documentos e conciliação em um único fluxo para PMEs.",
   },
   colors: {
     background: "#f8f9ff",

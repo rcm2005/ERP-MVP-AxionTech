@@ -12,9 +12,21 @@ import { Icon } from "@/components/icons";
 import { brand } from "@/lib/mock-data";
 
 const plans = [
-  { name: "Trial 14 dias", tone: "info" as const, desc: "Sem cobrança inicial, onboarding guiado." },
-  { name: "Starter", tone: "neutral" as const, desc: "Módulos financeiros e documentos." },
-  { name: "Pro", tone: "aria" as const, desc: "Inclui Aria, BI e Open Finance." },
+  {
+    name: "Workspace beta",
+    tone: "info" as const,
+    desc: "Fluxo guiado para provar valor operacional rápido.",
+  },
+  {
+    name: "Financeiro core",
+    tone: "neutral" as const,
+    desc: "Contas, documentos e conciliação no mesmo loop.",
+  },
+  {
+    name: "Assistido por IA",
+    tone: "aria" as const,
+    desc: "Copilot contextual para reduzir retrabalho, não inflar escopo.",
+  },
 ];
 
 export default function CadastroPage() {
@@ -26,7 +38,7 @@ export default function CadastroPage() {
           Crie sua conta
         </h2>
         <p className="mt-1 text-sm text-muted">
-          Prepare a base para onboarding, Open Finance e o primeiro uso do ERP.
+          Configure o mínimo necessário para validar o núcleo financeiro-fiscal do produto.
         </p>
       </div>
 
@@ -90,14 +102,14 @@ export default function CadastroPage() {
         <div className="flex items-start gap-2.5 rounded-lg bg-surfaceLow px-3 py-3">
           <Icon name="calendar" className="mt-0.5 h-4 w-4 flex-shrink-0 text-secondary" />
           <HelperText>
-            Após o cadastro, validamos o e-mail e preparamos o wizard com as configurações fiscais iniciais.
+            Após o cadastro, o onboarding prepara empresa, fiscal, banco e primeiro documento para o loop operacional inicial.
           </HelperText>
         </div>
 
         {/* Submit */}
         <div className="flex items-center justify-between gap-4">
           <HelperText>
-            Ao continuar, você concorda com os termos de uso.
+            Ao continuar, você concorda com os termos de uso do workspace beta.
           </HelperText>
           <Button size="lg" type="submit" className="flex-shrink-0">
             Continuar

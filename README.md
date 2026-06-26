@@ -1,15 +1,15 @@
-# Horizonte ERP MVP
+# Horizonte
 
-Monorepo de um ERP para PMEs brasileiras, com foco em financeiro, documentos e copilot Aria.
+Monorepo de um produto focado em **financeiro, documentos e conciliação para PMEs brasileiras**.
 
-> Status atual: **MVP de interface + contratos + stubs de API/worker** para evolução incremental.
+> Status atual: **protótipo operacional do núcleo financeiro-fiscal**, com fluxo persistido no app web e base técnica pronta para endurecimento incremental.
 
 ---
 
 ## 1) O que este projeto entrega hoje
 
 ### Front-end (apps/web)
-- Fluxos e telas principais já implementadas em Next.js (App Router):
+- Fluxos principais implementados em Next.js (App Router):
   - `/login`
   - `/cadastro`
   - `/onboarding`
@@ -21,17 +21,18 @@ Monorepo de um ERP para PMEs brasileiras, com foco em financeiro, documentos e c
   - `/documentos/inbox`
   - `/documentos/nfe`
   - `/documentos/boletos`
-  - `/crm/pipeline`
-  - `/crm/cotacoes`
-  - `/crm/clientes/[id]`
-  - `/bi/dashboard`
-  - `/bi/relatorios`
-  - `/config/empresa`
-  - `/config/usuarios`
-  - `/config/integracoes`
+- `/privacidade`
+- `/termos`
+- `/suporte`
+
+### Loop operacional já demonstrável
+- Importar documento no inbox
+- Transformar documento em lançamento
+- Revisar contas a pagar/receber a partir do mesmo estado persistido
+- Confirmar conciliações e ver impacto no dashboard/fluxo de caixa
 
 ### API (apps/api)
-- Endpoints REST/SSE com contratos validados via Zod:
+- Endpoints REST/SSE com contratos validados via Zod para a próxima fase de hardening:
   - `GET /health`
   - `POST /auth/login`
   - `POST /auth/magic-link`
@@ -52,7 +53,7 @@ Monorepo de um ERP para PMEs brasileiras, com foco em financeiro, documentos e c
   - `GET /aria/chat/stream` (SSE)
 
 ### Worker (apps/worker)
-- Workers de fila (BullMQ) estruturados:
+- Workers de fila estruturados para evolução futura:
   - `document-intake`
   - `bank-sync`
   - `alerts`
@@ -298,11 +299,11 @@ pnpm db:generate
 
 ## 11) Próximos passos sugeridos (produto/engenharia)
 
-- Conectar o front aos endpoints reais (hoje parte da UI usa dados mockados)
+- Levar o loop do app web para persistência end-to-end em API/DB
 - Substituir `nest-shim`/`queue-shim` por runtime completo quando iniciar hardening
+- Consolidar autenticação real, sessões persistentes e trilha de acesso
 - Expandir cobertura de testes unitários/integrados/E2E
-- Consolidar fluxo de autenticação real (Google, 2FA, sessão persistente)
-- Ligar pipeline de documentos e conciliação ao worker + DB de forma end-to-end
+- Validar o wedge comercial com PMEs e parceiros contábeis antes de reabrir escopo
 
 ---
 

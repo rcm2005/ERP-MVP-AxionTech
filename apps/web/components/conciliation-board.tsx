@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 import { Badge, Button, SurfacePanel, TableShell } from "@erp/ui";
+import { useShallow } from "zustand/react/shallow";
 import { Icon } from "./icons";
-import { conciliationCards } from "@/lib/mock-data";
-import { formatCurrency } from "@/lib/format";
 import { cn } from "@erp/ui";
+import {
+  formatCurrencyFromCents,
+  formatShortDate,
+  selectPendingMatches,
+  useDemoWorkspace,
+} from "@/lib/demo-workspace";
 
 const columns = [
   {
@@ -13,12 +18,14 @@ const columns = [
     label: "Open Finance",
     tone: "base" as const,
     icon: "bank" as const,
-    render: (card: (typeof conciliationCards)[number]) => ({
-      title: card.bank,
-      subtitle: card.date,
+    render: (item: {
+      bankTransaction: { description: string; occurredAt: string; amountCents: number };
+    }) => ({
+      title: item.bankTransaction.description,
+      subtitle: formatShortDate(item.bankTransaction.occurredAt),
       meta: "Movimento",
       badge: "Bancário",
-      amount: formatCurrency(card.amount),
+      amount: formatCurrencyFromCents(item.bankTransaction.amountCents),
       variant: "info" as const,
     }),
   },
@@ -27,14 +34,14 @@ const columns = [
     label: "Confiança",
     tone: "glass" as const,
     icon: "sparkles" as const,
-    render: (card: (typeof conciliationCards)[number]) => ({
-      title: card.suggestion,
-      subtitle: `${card.confidence}% confiança`,
-      meta: card.status,
+    render: (item: { entry: { description: string; amountCents: number }; match: { confidencePercent: number } }) => ({
+      title: item.entry.description,
+      subtitle: `${item.match.confidencePercent}% confiança`,
+      meta: "Match sugerido",
       badge: "Aria",
-      amount: formatCurrency(card.amount),
+      amount: formatCurrencyFromCents(item.entry.amountCents),
       variant:
-        card.confidence >= 90 ? ("success" as const) : ("warning" as const),
+        item.match.confidencePercent >= 90 ? ("success" as const) : ("warning" as const),
     }),
   },
   {
@@ -42,20 +49,47 @@ const columns = [
     label: "Status",
     tone: "base" as const,
     icon: "receipt-text" as const,
-    render: (card: (typeof conciliationCards)[number]) => ({
-      title: card.suggestion,
-      subtitle: `Vinculado a ${card.bank}`,
+    render: (item: { entry: { description: string; counterparty: string; amountCents: number; status: string } }) => ({
+      title: item.entry.description,
+      subtitle: `Contraparte: ${item.entry.counterparty}`,
       meta: "ERP interno",
-      badge: card.status,
-      amount: formatCurrency(card.amount),
+      badge: item.entry.status,
+      amount: formatCurrencyFromCents(item.entry.amountCents),
       variant: "neutral" as const,
     }),
   },
 ] as const;
 
 export function ConciliationBoard() {
+  const suggestions = useDemoWorkspace(useShallow(selectPendingMatches));
+  const confirmMatch = useDemoWorkspace((state) => state.confirmMatch);
+  const rejectMatch = useDemoWorkspace((state) => state.rejectMatch);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedCard = conciliationCards[selectedIndex];
+  const selectedCard = suggestions[selectedIndex] ?? suggestions[0];
+
+  if (!selectedCard) {
+    return (
+      <SurfacePanel className="p-8" tone="base">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted">
+          Conciliação
+        </p>
+        <h1 className="mt-2 text-2xl font-bold text-text">Caixa conciliado</h1>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
+          Nenhum match pendente no momento. O próximo passo é alimentar o inbox
+          com novos documentos ou acompanhar o fluxo de caixa.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button href="/documentos/inbox">
+            <Icon name="upload-cloud" className="h-4 w-4" />
+            Abrir inbox
+          </Button>
+          <Button href="/financeiro/fluxo-caixa" variant="secondary">
+            Ver fluxo de caixa
+          </Button>
+        </div>
+      </SurfacePanel>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -68,10 +102,10 @@ export function ConciliationBoard() {
             Conciliação Bancária
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Compare extrato bancário, sugestão da Aria e lançamento do ERP em uma mesma tela.
+            Compare extrato, sugestão e lançamento real antes de fechar o caixa.
           </p>
         </div>
-        <Badge variant="success">85%+ auto-match</Badge>
+        <Badge variant="success">{suggestions.length} match(es) sugerido(s)</Badge>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -88,8 +122,8 @@ export function ConciliationBoard() {
             </div>
 
             <div className="space-y-3">
-              {conciliationCards.map((card, index) => {
-                const entry = column.render(card);
+              {suggestions.map((item, index) => {
+                const entry = column.render(item);
                 const active = selectedIndex === index;
 
                 return (
@@ -100,7 +134,7 @@ export function ConciliationBoard() {
                         ? "border-secondary/30 bg-surfaceHigh"
                         : "border-outline/15 bg-surfaceLow hover:bg-surfaceHigh/60",
                     )}
-                    key={`${column.title}-${card.bank}-${index}`}
+                    key={`${column.title}-${item.bankTransaction.id}-${index}`}
                     onClick={() => setSelectedIndex(index)}
                     type="button"
                   >
@@ -132,16 +166,19 @@ export function ConciliationBoard() {
               Match selecionado
             </p>
             <h2 className="mt-1 text-lg font-bold text-text">
-              {selectedCard.bank}
+              {selectedCard.bankTransaction.description}
             </h2>
-            <p className="mt-1 text-sm text-muted">{selectedCard.suggestion}</p>
+            <p className="mt-1 text-sm text-muted">{selectedCard.entry.description}</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="ghost">
+            <Button
+              onClick={() => rejectMatch(selectedCard.bankTransaction.id)}
+              variant="ghost"
+            >
               <Icon name="x" className="h-4 w-4" />
               Rejeitar
             </Button>
-            <Button>
+            <Button onClick={() => confirmMatch(selectedCard.bankTransaction.id)}>
               <Icon name="check-circle" className="h-4 w-4" />
               Confirmar match
             </Button>
@@ -155,19 +192,19 @@ export function ConciliationBoard() {
                 <tr className="border-t border-outline/10">
                   <td className="px-4 py-3 text-muted">Audit trail</td>
                   <td className="px-4 py-3 font-semibold text-text">
-                    Confirmação, rejeição e ajuste são registrados
+                    Confirmação, rejeição e ajuste são refletidos no fluxo operacional
                   </td>
                 </tr>
                 <tr className="border-t border-outline/10">
                   <td className="px-4 py-3 text-muted">Lançamento ERP</td>
                   <td className="px-4 py-3 font-semibold text-text">
-                    NF-e #4502 • Pendente
+                    {selectedCard.entry.description} • {selectedCard.entry.status}
                   </td>
                 </tr>
                 <tr className="border-t border-outline/10">
                   <td className="px-4 py-3 text-muted">Próximo passo</td>
                   <td className="px-4 py-3 font-semibold text-text">
-                    Confirmação manual ou regra de auto-conciliação
+                    Confirmar manualmente antes de encerrar o ciclo do caixa
                   </td>
                 </tr>
               </tbody>
@@ -178,12 +215,12 @@ export function ConciliationBoard() {
             <div className="flex items-center gap-2">
               <Icon name="sparkles" className="h-4 w-4 text-secondary" />
               <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
-                Dica da Aria
+                Dica do copilot
               </span>
             </div>
             <p className="mt-3 text-sm leading-6 text-text">
-              Detectei recorrência de lançamentos para combustível e SaaS.
-              Deseja criar regra automática para os próximos itens iguais?
+              Comece confirmando os matches com maior confiança. O objetivo é
+              reduzir incerteza operacional antes de sofisticar automações.
             </p>
           </SurfacePanel>
         </div>
